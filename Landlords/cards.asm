@@ -23,10 +23,6 @@ includelib irvine32.lib
 
 include cards.inc
 
-
-;cards_cards BYTE 54 DUP(0);牌数组
-;cards_remain BYTE 54;剩余牌数
-
 .code
 
 ;-----------------------------------------------------
@@ -92,7 +88,7 @@ GetCard PROC,
 	result:PTR BYTE,	;参数作用：抽牌数字
 	my_remain:PTR BYTE,	;参数作用：剩余牌数量地址
 	my_cards:PTR BYTE	;参数作用：牌组地址
-; 函数功能:抽牌
+; 函数功能:发牌
 ; 返回值:无
 ;-----------------------------------------------------
 	;函数实现
