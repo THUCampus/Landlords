@@ -18,12 +18,24 @@
     <None Include="template.inc">
       <Filter>头文件</Filter>
     </None>
+    <None Include="cardgroup.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="cards.inc">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="template.asm">
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="main.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="cardgroup.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="cards.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>

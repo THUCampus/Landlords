@@ -135,9 +135,13 @@
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="cardgroup.inc" />
+    <None Include="cards.inc" />
     <None Include="template.inc" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="cardgroup.asm" />
+    <MASM Include="cards.asm" />
     <MASM Include="main.asm" />
     <MASM Include="template.asm" />
   </ItemGroup>
