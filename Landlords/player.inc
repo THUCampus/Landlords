@@ -29,6 +29,8 @@
 	NewPlayer PROTO,my_player:PTR Player;初始化玩家数据
 	AddCard PROTO,my_player:PTR Player,num:BYTE;加牌
 	DelCard PROTO,my_player:PTR Player,num:BYTE;减牌
+	Discard PROTO,my_player:PTR Player;出牌
+	Passcard PROTO,my_player:PTR Player;过牌
 
     ;=============
     ; Local macros

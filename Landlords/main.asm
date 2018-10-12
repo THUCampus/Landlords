@@ -63,60 +63,84 @@ Main PROC
 	;mDumpMem OFFSET player1.card_group, LENGTHOF player1.card_group, TYPE player1.card_group
 
 
-	lea esi,my_game.all_players
-	invoke AddCard,esi,13
-	lea edi,(Player PTR [esi]).card_group
-	invoke GameStart,addr my_game
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+	;lea esi,my_game.all_players
+	;invoke AddCard,esi,13
+	;lea edi,(Player PTR [esi]).card_group
+	;invoke GameStart,addr my_game
+	;mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
 
-	add esi,TYPE Player
-	invoke AddCard,esi,20
-	lea edi,(Player PTR [esi]).card_group
-	invoke GameStart,addr my_game
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+;	add esi,TYPE Player
+;	invoke AddCard,esi,20
+;	lea edi,(Player PTR [esi]).card_group
+;	invoke GameStart,addr my_game
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
 
-	mDumpMem OFFSET my_game.all_cards, LENGTHOF my_game.all_cards, TYPE my_game.all_cards
-	lea edi,my_game.landlord_cards
-	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
-	;--------------------------------------------------------
+;	mDumpMem OFFSET my_game.all_cards, LENGTHOF my_game.all_cards, TYPE my_game.all_cards
+;	lea edi,my_game.landlord_cards
+;	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
+;	;--------------------------------------------------------
+;	invoke SendCard,addr my_game
+;	lea esi,my_game.all_players
+;	;mov (Player PTR [esi]).player_position,1
+;	add esi,TYPE Player
+;	mov (Player PTR [esi]).player_position,1
+;	add esi,TYPE Player
+;	mov (Player PTR [esi]).player_position,1
+;	invoke SetLandlord,addr my_game
+;	invoke SendLandlordCard,addr my_game
+;
+;	lea esi,my_game.all_players
+;	lea edi,(Player PTR [esi]).card_group
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+;
+;	add esi,TYPE Player
+;	lea edi,(Player PTR [esi]).card_group
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+;
+;	add esi,TYPE Player
+;;	lea edi,(Player PTR [esi]).card_group
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+;
+;	lea edi,my_game.landlord_cards
+;	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
+;	;-----------------------------------------------------------------
+;
+
+;	lea esi,my_game.all_players
+;	lea edi,(Player PTR [esi]).player_position
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+;
+;	add esi,TYPE Player
+;	lea edi,(Player PTR [esi]).player_position
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+;
+;	add esi,TYPE Player
+;	lea edi,(Player PTR [esi]).player_position
+;	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+
+	invoke GameStart,addr my_game
 	invoke SendCard,addr my_game
-	lea esi,my_game.all_players
-	;mov (Player PTR [esi]).player_position,1
-	add esi,TYPE Player
-	mov (Player PTR [esi]).player_position,1
-	add esi,TYPE Player
-	mov (Player PTR [esi]).player_position,1
 	invoke SetLandlord,addr my_game
 	invoke SendLandlordCard,addr my_game
 
 	lea esi,my_game.all_players
-	lea edi,(Player PTR [esi]).card_group
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+	lea edi,(Player PTR [esi]).cards
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).cards, TYPE (Player PTR [esi]).cards
 
-	add esi,TYPE Player
-	lea edi,(Player PTR [esi]).card_group
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
-
-	add esi,TYPE Player
-	lea edi,(Player PTR [esi]).card_group
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
-
-	lea edi,my_game.landlord_cards
-	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
-	;-----------------------------------------------------------------
-
+	invoke Discard,esi
+	lea esi,my_game.all_players
+	lea edi,(Player PTR [esi]).cards
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).cards, TYPE (Player PTR [esi]).cards
 
 	lea esi,my_game.all_players
-	lea edi,(Player PTR [esi]).player_position
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+	lea edi,(Player PTR [esi]).cards_to_show
+	lea esi,(CardGroup PTR [edi]).cards
+	mDumpMem esi, LENGTHOF (CardGroup PTR [edi]).cards, TYPE (CardGroup PTR [edi]).cards
 
-	add esi,TYPE Player
-	lea edi,(Player PTR [esi]).player_position
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
-
-	add esi,TYPE Player
-	lea edi,(Player PTR [esi]).player_position
-	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+	lea esi,my_game.all_players
+	lea edi,(Player PTR [esi]).cards_showed
+	lea esi,(CardGroup PTR [edi]).cards
+	mDumpMem esi, LENGTHOF (CardGroup PTR [edi]).cards, TYPE (CardGroup PTR [edi]).cards
 
 
 	ret

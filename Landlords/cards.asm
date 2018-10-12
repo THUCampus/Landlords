@@ -61,6 +61,7 @@ RandCards PROC,
 	
 	mov esi,my_cards
 	mov ebx,0
+	call Randomize
 	.while ebx<54
 		mov edi,my_cards
 		mov eax,54
