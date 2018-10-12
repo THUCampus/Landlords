@@ -7,7 +7,7 @@
     ; Local structures
     ;=============
 	;在此处添加结构体
-	CardGroup STRUCT
+	CardGroup STRUCT;72BYTE
 		group_type BYTE 0;牌型类型
 		value BYTE 0;//权值
 		count BYTE 0;//此结构元素数量

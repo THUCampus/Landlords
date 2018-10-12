@@ -10,9 +10,7 @@ TITLE Main (main.asm)
 include irvine32.inc
 includelib irvine32.lib
 
-include cardgroup.inc
-include cards.inc
-include player.inc
+include game.inc
 
 INCLUDE Macros.inc
 
@@ -22,6 +20,8 @@ INCLUDE Macros.inc
 	group2 CardGroup <>
 	result BYTE ?
 	player1 Player <,3>
+
+	my_game Game  <>
 
 .code
 
@@ -52,15 +52,72 @@ Main PROC
 	;mDumpMem OFFSET cards_remain, LENGTHOF cards_remain, TYPE cards_remain
 	;mDumpMem OFFSET result, LENGTHOF result, TYPE result
 
-	mov player1.cards[12],1
-	set_landlord player1
-	invoke AddCard,addr player1,13
-	invoke AddCard,addr player1,14
-	invoke AddCard,addr player1,45
-	invoke DelCard,addr player1,45
+	;mov player1.cards[12],1
+	;set_landlord player1
+	;invoke AddCard,addr player1,13
+	;invoke AddCard,addr player1,14
+	;invoke AddCard,addr player1,45
+	;invoke DelCard,addr player1,45
 
-	new_game player1
-	mDumpMem OFFSET player1.cards_num, LENGTHOF player1.cards_num, TYPE player1.cards_num
+	;invoke NewPlayer,addr player1
+	;mDumpMem OFFSET player1.card_group, LENGTHOF player1.card_group, TYPE player1.card_group
+
+
+	lea esi,my_game.all_players
+	invoke AddCard,esi,13
+	lea edi,(Player PTR [esi]).card_group
+	invoke GameStart,addr my_game
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+
+	add esi,TYPE Player
+	invoke AddCard,esi,20
+	lea edi,(Player PTR [esi]).card_group
+	invoke GameStart,addr my_game
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+
+	mDumpMem OFFSET my_game.all_cards, LENGTHOF my_game.all_cards, TYPE my_game.all_cards
+	lea edi,my_game.landlord_cards
+	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
+	;--------------------------------------------------------
+	invoke SendCard,addr my_game
+	lea esi,my_game.all_players
+	;mov (Player PTR [esi]).player_position,1
+	add esi,TYPE Player
+	mov (Player PTR [esi]).player_position,1
+	add esi,TYPE Player
+	mov (Player PTR [esi]).player_position,1
+	invoke SetLandlord,addr my_game
+	invoke SendLandlordCard,addr my_game
+
+	lea esi,my_game.all_players
+	lea edi,(Player PTR [esi]).card_group
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+
+	add esi,TYPE Player
+	lea edi,(Player PTR [esi]).card_group
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+
+	add esi,TYPE Player
+	lea edi,(Player PTR [esi]).card_group
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).card_group, TYPE (Player PTR [esi]).card_group
+
+	lea edi,my_game.landlord_cards
+	mDumpMem edi, LENGTHOF my_game.landlord_cards, TYPE my_game.landlord_cards
+	;-----------------------------------------------------------------
+
+
+	lea esi,my_game.all_players
+	lea edi,(Player PTR [esi]).player_position
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+
+	add esi,TYPE Player
+	lea edi,(Player PTR [esi]).player_position
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+
+	add esi,TYPE Player
+	lea edi,(Player PTR [esi]).player_position
+	mDumpMem edi, LENGTHOF (Player PTR [esi]).player_position, TYPE (Player PTR [esi]).player_position
+
 
 	ret
 Main ENDP

@@ -9,11 +9,3 @@
 	GetCard PROTO,result:PTR BYTE,my_remain:PTR BYTE,my_cards:PTR BYTE;发牌
 
 ; #########################################################################
-
-    .data
-		;在此处添加变量
-        cards_cards BYTE 54 DUP(0);牌数组
-		cards_remain BYTE 54;剩余牌数
-		
-
-; #########################################################################

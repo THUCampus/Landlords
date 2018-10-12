@@ -22,6 +22,38 @@ include player.inc
 .code
 
 ;-----------------------------------------------------
+NewPlayer PROC,
+	my_player:PTR Player	;参数作用：玩家地址
+; 函数功能:初始化玩家数据
+; 返回值:无
+;-----------------------------------------------------
+	;函数实现
+	pushad
+	mov edi,my_player
+
+	mov (Player PTR [edi]).player_position,0
+	mov (Player PTR [edi]).cards_num,0
+	mov (Player PTR [edi]).to_pass,0
+
+	mov esi,0
+	.while esi<54
+		mov (Player PTR [edi]).cards[esi],0
+		inc esi
+	.endw
+
+	mov esi,0
+	.while esi<15
+		mov (Player PTR [edi]).card_group[esi],0
+		inc esi
+	.endw
+
+	invoke Clear,addr (Player PTR [edi]).cards_to_show
+	invoke Clear,addr (Player PTR [edi]).cards_showed
+	popad
+	ret
+NewPlayer ENDP
+
+;-----------------------------------------------------
 AddCard PROC,
 	my_player:PTR Player,	;参数作用：玩家地址
 	num:BYTE	;参数作用：插入的牌
