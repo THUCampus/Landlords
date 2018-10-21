@@ -120,11 +120,8 @@ DelCard PROC,
 	ret
 DelCard ENDP
 
-;	Discard PROTO,my_player:PTR Player;出牌
-;	Passcard PROTO,my_player:PTR Player;过牌
-
 ;-----------------------------------------------------
-Discard PROC,
+DisCard PROC,
 	my_player:PTR Player	;参数作用：玩家地址
 ; 函数功能:出牌（没有UI之前先使用命令行输入，'#'为出牌，'p'为过牌）
 ; 返回值:无
@@ -136,7 +133,12 @@ Discard PROC,
 	mov esi,my_player
 	.while 1
 		call ReadChar
+		call WriteChar
 		.if al == '#'|| al == 'p'
+			push eax
+			mov al,10
+			call WriteChar
+			pop eax
 			.break
 		.elseif al == '+'
 			call ReadDec
@@ -168,10 +170,10 @@ Discard PROC,
 
 	popad
 	ret
-Discard ENDP
+DisCard ENDP
 
 ;-----------------------------------------------------
-Passcard PROC,
+PassCard PROC,
 	my_player:PTR Player	;参数作用：玩家地址
 ; 函数功能:过牌（没有UI之前先使用命令行输入）
 ; 返回值:无
@@ -202,6 +204,6 @@ Passcard PROC,
 
 	popad
 	ret
-Passcard ENDP
+PassCard ENDP
 
 END

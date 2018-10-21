@@ -13,24 +13,25 @@
     ; Local structures
     ;=============
 	;在此处添加结构体
-	Game STRUCT;713BYTE
+	GamePack STRUCT;714BYTE
+		now_player BYTE 0;现在的游戏玩家编号
 		status BYTE 0;游戏进度
 		all_cards BYTE 54 DUP(0);牌数组
 		all_cards_remain BYTE 54;剩余牌数
 		landlord_cards BYTE 3 DUP(0);地主牌
 		all_players Player 3 DUP(<>);所有玩家信息
-	Game ENDS
+	GamePack ENDS
 
 	;=================
     ; Local prototypes
     ;=================
 	;在此处添加函数
-    GameStart PROTO,gamePtr:PTR Game;游戏开始初始化
-	SendCard PROTO,gamePtr:PTR Game;发牌
-	SetLandlord PROTO,gamePtr:PTR Game;设置地主
-	SendLandlordCard PROTO,gamePtr:PTR Game;发地主牌
-	GamePlaying PROTO,gamePtr:PTR Game;游戏进行中
-	GameOver PROTO,gamePtr:PTR Game;游戏结束
+    GameStart PROTO,gamePtr:PTR GamePack;游戏开始初始化
+	SendCard PROTO,gamePtr:PTR GamePack;发牌
+	SetLandlord PROTO,gamePtr:PTR GamePack;设置地主
+	SendLandlordCard PROTO,gamePtr:PTR GamePack;发地主牌
+	GamePlaying PROTO,gamePtr:PTR GamePack;游戏进行中
+	GameOver PROTO,gamePtr:PTR GamePack;游戏结束
 
 ; #########################################################################
 

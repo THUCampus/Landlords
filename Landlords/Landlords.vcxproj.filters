@@ -30,6 +30,12 @@
     <None Include="game.inc">
       <Filter>头文件</Filter>
     </None>
+    <None Include="client.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="server.inc">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="template.asm">
@@ -48,6 +54,12 @@
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="game.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="client.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="server.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>
