@@ -18,12 +18,48 @@
     <None Include="template.inc">
       <Filter>头文件</Filter>
     </None>
+    <None Include="cardgroup.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="cards.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="player.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="game.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="client.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="server.inc">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="template.asm">
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="main.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="cardgroup.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="cards.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="player.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="game.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="client.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="server.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>

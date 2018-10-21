@@ -32,26 +32,18 @@ initClient PROC USES eax
 	invoke RtlZeroMemory, addr _sockAddr, SIZEOF _sockAddr    ;use zero to fill the block
 
 	mov _sockAddr.sin_family, AF_INET
-	invoke crt_scanf, addr ipBuf, addr ipString
-	;invoke crt_printf, addr ipString
-    ;invoke wsprintf, addr ipBuf, OFFSET ipInputFormt, OFFSET ipAddr    ;input ipAddr to connect
+
+	invoke crt_printf, addr ipInputStr
+	invoke crt_scanf, addr _printS, addr ipString
+
     invoke inet_addr, addr ipString    ;convert the ip address into network byte order
 	.if eax != INADDR_NONE
 		mov _sockAddr.sin_addr, eax
 	.else
-		invoke crt_printf, _msg, szErrIP
+		invoke crt_printf, _printS2, szErrIPStr
 	.endif
     invoke htons, TCP_PORT   ;convert the port value to network byte order 
 	mov _sockAddr.sin_port, ax
-
-    ;add to message loop
-    ;invoke WSAAsyncSelect, _sock, hwnd, WM_SOCKET, FD_CONNECT+FD_READ+FD_CLOSE
-    ;.if eax == SOCKET_ERROR
-	;	invoke WSAGetLastError
-	;	.if eax != WSAEWOULDBLOCK
-	;	invoke closesocket, _sock 
-    ;    invoke ExitProcess, NULL
-    ;.endif
 
 	;connect server
     invoke connect, _sock, addr _sockAddr, SIZEOF _sockAddr
@@ -70,109 +62,142 @@ handleMessage PROC USES eax
 ; 函数功能 : 进行信息交互
 ; 返回值 : null
 ;-----------------------------------------------------
-	LOCAL @recvPack:GAME_PACKAGE 
 	.while TRUE
-		invoke recv, _sock, addr @recvPack, SIZEOF @recvPack, 0
+		invoke recv, _sock, addr my_game, SIZEOF GamePack, 0
 		.if eax != SOCKET_ERROR ;timeOut 
-			invoke parsePack, addr @recvPack.state
+			invoke parsePack, addr my_game
 		.endif
 	.endw
 	ret
 handleMessage ENDP
 
 
-
 ;-----------------------------------------------------
-parsePack PROC USES ebx ecx eax edi,
-	_pack: PTR GAME_PACKAGE
+parsePack PROC,
+	_pack: PTR GamePack
 ; 函数功能 : 解析数据包
 ; 返回值 : null
 ;-----------------------------------------------------
-	LOCAL @tempPack: GAME_PACKAGE
-	mov @tempPack.player, 0
-	mov @tempPack.askLord, 0
-	mov @tempPack.ifSuccess, 0
-	mov edi, _pack
-	invoke crt_printf, addr szRecvPack, (GAME_PACKAGE PTR [edi]).state, (GAME_PACKAGE PTR [edi]).player
-	mov cl, (GAME_PACKAGE PTR [edi]).state
-	
-	;receive message : all ready
-	.if cl == S2C_READY
-		mov al, (GAME_PACKAGE PTR [edi]).player
-		mov player, al
 
-	;turn to ask landlord
-	.elseif cl == S2C_LORDTURN
-		mov al, (GAME_PACKAGE PTR [edi]).player
-		.if al == player
-			mov @tempPack.state, C2S_ASKLORD
-			mov @tempPack.player, al
-			mov @tempPack.askLord, 1 ;选择是否叫地主
+	pushad
+	mov edi, _pack
+	mov cl, (GamePack PTR [edi]).status
+	
+	;第一次接受数据：已就绪，分配玩家编号
+	.if cl == game_NoStart
+		mov al, (GamePack PTR [edi]).now_player
+		mov playerNo, al
+
+	;叫地主阶段
+	.elseif cl == game_GetLandlord
+		mov ebx,0
+		mov bl, (GamePack PTR [edi]).now_player
+		.if bl == playerNo
+			;先用数字输入代表是否愿意叫地主，1为愿意，0为不愿意
+			invoke crt_printf, addr landlordChooseStr
+			lea esi,(GamePack PTR [edi]).all_players
+			mov eax,SIZEOF Player
+			mul ebx
+			add esi,eax
+
+			invoke crt_scanf, addr _printC, addr chooseLandlord
+			invoke crt_scanf, addr _printC, addr chooseLandlord
+			sub chooseLandlord, 48
+			mov al, chooseLandlord
+			.if al == 1
+				get_landlord (Player PTR [esi])				
+			.endif
+			 
+			 mov eax,SOCKET_ERROR
 			.repeat 
 				;发送数据包
-				invoke send, _sock,  addr @tempPack, SIZEOF GAME_PACKAGE, 0
+				invoke send, _sock,  _pack, SIZEOF GamePack, 0
 			.until eax != SOCKET_ERROR
 		.else
 			pushad
-			invoke crt_printf, addr szErrPlayer
+			invoke crt_printf, addr notYourTurnStr
 			popad
 		.endif
 
-	;show landlord info from other players
-	.elseif cl == S2C_REPLYLORD
-		;player x 是否叫了地主，并显示
-		;.if  (GAME_PACKAGE PTR [edi]).askLord == 1
-		;mov al, (GAME_PACKAGE PTR [edi]).player
-
-
-	;receive: who is landlord
-	.elseif cl == S2C_ISLORD
-		mov al, (GAME_PACKAGE PTR [edi]).player
-		.if al == player
-			;我是地主
-		.else
-			;我不是地主
-		.endif
-
-	;turn to play card
-	.elseif cl == S2C_PLAYTURN
-		mov al, (GAME_PACKAGE PTR [edi]).player
-		.if al == player
+	;出牌阶段
+	.elseif cl == game_Discard
+		mov ebx,0
+		mov bl, (GamePack PTR [edi]).now_player
+		.if bl == playerNo
 			;选择出牌并发送数据包
-			mov @tempPack.player, al
-			mov @tempPack.state, C2S_PLAYCARD
-			mov @tempPack.ifSuccess, 1
+			lea esi,(GamePack PTR [edi]).all_players
+			mov eax,SIZEOF Player
+			mul ebx
+			add esi,eax
+
+			;显示已有的牌的数字
+			invoke crt_printf, addr cardsHaveStr
+			pushad
+			mov ebx,0
+			lea edi,(Player PTR [esi]).cards
+			.while ebx<54
+				mov al,BYTE PTR [edi]
+				.if al == 1
+					invoke crt_printf, addr _printD, ebx
+				.endif		
+				inc ebx
+				inc edi
+			.endw
+			popad
+
+			;选牌出牌
+			invoke crt_printf, addr cardsChooseStr
+			invoke DisCard,esi
+
+			mov eax,SOCKET_ERROR
 			.repeat 
-				invoke send, _sock,  addr @tempPack, SIZEOF GAME_PACKAGE, 0
+				invoke send, _sock, _pack, SIZEOF GamePack, 0
 			.until eax != SOCKET_ERROR
 		.else
 			pushad
-			invoke crt_printf, addr szErrPlayer
+			invoke crt_printf, addr notYourTurnStr
 			popad
 		.endif
 
-	.elseif cl == S2C_PLAYCARD
-		;其他玩家的出牌信息
-		;如果有玩家胜利，显示胜利界面
-
+	.elseif cl == game_GameOver
+		;结束
+		lea esi,(GamePack PTR [edi]).all_players
+		mov eax,SIZEOF Player
+		mov ebx,3
+		mul ebx
+		add eax,esi
+		.while esi<eax
+			mov cl,(Player PTR [esi]).player_position
+			mov ch,(Player PTR [esi]).cards_num
+			.if ch == 0
+				.if cl==0
+					invoke crt_printf, addr peasantWinStr
+				.elseif cl==1
+					invoke crt_printf, addr landLordWinStr
+				.endif
+			.else
+				.continue
+			.endif
+			add esi,SIZEOF Player
+		.endw
+		
 	.endif
 
+	popad
 	ret
 
 parsePack ENDP
 
 
-
-main PROC
+client_main PROC
 
     invoke initClient
 
 	invoke handleMessage
 
-	;invoke 
 	invoke closesocket, _sock 
 	invoke WSACleanup 
     invoke ExitProcess, NULL
-main ENDP
+client_main ENDP
 
-END main
+END client_main
