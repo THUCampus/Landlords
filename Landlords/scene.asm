@@ -105,15 +105,15 @@ initScene endp
 ;=======================================================================
 
 ;=======================================================================
-ShowBtn proc uses eax ebx ecx edx esi edi,number,_pack: PTR GamePack,is_operate_addr:PTR BYTE
+ShowBtn proc uses eax ebx ecx edx esi edi,number,_pack: PTR GamePack,operate_addr:PTR BYTE
 ;显示出牌按钮
 ;DISCARDBTN 出牌阶段按钮
 ;CALLBTN 叫地主阶段按钮
 ;HIDEBTN 隐藏按钮
 ;---------------------------------
-	mov edi,is_operate_addr
+	mov edi,operate_addr
 	mov al,BYTE PTR [edi]
-	.if al == 0;隐藏按钮
+	.if al != 1;隐藏按钮
 		ret
 	.endif
 
@@ -136,7 +136,7 @@ ShowBtn endp
 ;=======================================================================
 
 ;=======================================================================
-updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,is_operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
+updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
 ;显示初始界面
   LOCAL @hDc:HDC ;窗口对应的DC
 ;---------------------------------
@@ -149,7 +149,7 @@ updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,is_operate_a
 	invoke DisPlayer1Card,_pack,playerNo_addr;对手1打出的牌
 	invoke DisPlayer2Card,_pack,playerNo_addr;对手2打出的牌
 	invoke DrawPlayerCard,_pack,playerNo_addr;对手的手牌
-	invoke ShowBtn,1,_pack,is_operate_addr;出牌按钮
+	invoke ShowBtn,1,_pack,operate_addr;出牌按钮
 	invoke BitBlt,hdcScene,500,300,200,50,hdcBtn,0,0,SRCCOPY;
 	invoke BitBlt,@hDc, 0, 0, 860, 540, hdcScene, 0, 0, SRCCOPY
 
@@ -172,19 +172,19 @@ LOCAL base:DWORD
 	mov base,0
 	mov x, 601
 
-	.if cardNum == 0
-		mov edi,_pack
-		lea esi,(GamePack PTR [edi]).all_players
-		mov eax,SIZEOF Player
-		mov ebx,0
-		push esi
-		mov esi,playerNo_addr
-		mov bl,BYTE PTR [esi]
-		pop esi
-		mul ebx
-		add esi,eax
-		mov eax,0
-		movzx eax, (Player PTR [esi]).cards_num
+	mov edi,_pack
+	lea esi,(GamePack PTR [edi]).all_players
+	mov eax,SIZEOF Player
+	mov ebx,0
+	push esi
+	mov esi,playerNo_addr
+	mov bl,BYTE PTR [esi]
+	pop esi
+	mul ebx
+	add esi,eax
+	mov eax,0
+	movzx eax, (Player PTR [esi]).cards_num
+	.if cardNum < eax
 		mov cardNum,eax
 	.endif
 
@@ -255,12 +255,17 @@ drawMyCards endp
 
 
 ;=======================================================================
-click proc uses eax ebx ecx edx esi edi,hWnd, lParam,stage,_pack: PTR GamePack,operated_addr:PTR BYTE,playerNo_addr:PTR BYTE
+click proc uses eax ebx ecx edx esi edi,hWnd, lParam,stage,_pack: PTR GamePack,operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
 ;点击屏幕事件
 LOCAL @ptMouse:POINT;鼠标位置
 LOCAL @hDc:HDC
 ;选牌
 ;----------------------------------
+	mov edi,operate_addr
+	mov al,BYTE PTR [edi]
+	.if al!=1
+		ret
+	.endif
 	mov eax, 0
 	mov ax, WORD ptr lParam
 	mov @ptMouse.POINT.x, eax
@@ -271,8 +276,8 @@ LOCAL @hDc:HDC
 	mov cl, (GamePack PTR [edi]).status
 	.IF cl == game_Discard ;出牌阶段
 		.IF @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
-			mov ebx,operated_addr
-			mov BYTE PTR [ebx],1
+			mov ebx,operate_addr
+			mov BYTE PTR [ebx],2
 			mov cardNum,0
 
 			mov edi,_pack
@@ -370,8 +375,8 @@ LOCAL @hDc:HDC
 		.ENDIF
 	.ELSEIF cl == game_GetLandlord ;叫地主阶段
 		.IF @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
-			mov ebx,operated_addr
-			mov BYTE PTR [ebx],1
+			mov ebx,operate_addr
+			mov BYTE PTR [ebx],2
 			mov cardNum,0
 			.IF @ptMouse.POINT.x >=510 && @ptMouse.POINT.x <=592;点击"不叫"
 				;

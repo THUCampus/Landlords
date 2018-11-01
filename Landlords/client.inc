@@ -35,8 +35,6 @@ option casemap: none
 	;在此处添加函数
     initClient PROTO,_sock_addr:PTR DWORD
     ExitProcess PROTO, dwExitCode:DWORD
-	parsePack PROTO, _pack: PTR GamePack
-	handleMessage PROTO
 
 
 ; #########################################################################
@@ -70,8 +68,6 @@ option casemap: none
 
 	.data?
 	_sock DWORD ?
-	;hwnd DWORD ?
-	;hWinMain DWORD ?
 
     playerNo BYTE ?
 		

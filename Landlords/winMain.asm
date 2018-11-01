@@ -28,23 +28,23 @@ handleNewEvent PROC,
 		mov al, (GamePack PTR [edi]).now_player
 		mov playerNo, al
 	.elseif cl == game_SendCard
-		invoke updateScene,hWinMain,edi,addr is_operate,addr playerNo
+		invoke updateScene,hWinMain,edi,addr operate,addr playerNo
 	.elseif cl == game_GetLandlord
 		mov ebx,0
 		mov bl, (GamePack PTR [edi]).now_player
 		.if bl == playerNo
-			mov is_operate,1
+			mov operate,1
 		.endif
-		invoke updateScene,hWinMain,edi,addr is_operate,addr playerNo
+		invoke updateScene,hWinMain,edi,addr operate,addr playerNo
 	.elseif cl == game_SendLandlordCard
-		invoke updateScene,hWinMain,edi,addr is_operate,addr playerNo
+		invoke updateScene,hWinMain,edi,addr operate,addr playerNo
 	.elseif cl == game_Discard
 		mov ebx,0
 		mov bl, (GamePack PTR [edi]).now_player
 		.if bl == playerNo
-			mov is_operate,1
+			mov operate,1
 		.endif
-		invoke updateScene,hWinMain,edi,addr is_operate,addr playerNo
+		invoke updateScene,hWinMain,edi,addr operate,addr playerNo
 	.endif
 	popad
 	ret
@@ -61,7 +61,7 @@ gameInit proc uses edi, hwnd:HWND
 	;刷新画面
 	lea edi,my_game
 	invoke BeginPaint,hwnd,addr @ps
-	invoke updateScene,hwnd,edi,addr is_operate,addr playerNo
+	invoke updateScene,hwnd,edi,addr operate,addr playerNo
 	invoke EndPaint,hwnd,addr @ps
 	ret
 gameInit endp
@@ -100,17 +100,24 @@ procWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		invoke initScene, hWnd
 	.elseif eax == WM_LBUTTONDOWN
 		lea edi,my_game
-		invoke click,hWnd,lParam,0,edi,addr operated,addr playerNo
+		invoke click,hWnd,lParam,0,edi,addr operate,addr playerNo
 
 	.elseif eax == WM_RBUTTONDOWN
-		mov is_operate,0
+		mov operate,0
 	;	invoke gameOver,hWnd,WIN
 
 	.elseif eax == WM_PAINT
 		lea edi,my_game
 		invoke BeginPaint,hWnd,addr @ps
-		invoke updateScene,hWnd,edi,addr is_operate,addr playerNo
+		invoke updateScene,hWnd,edi,addr operate,addr playerNo
 		invoke EndPaint,hWnd,addr @ps
+
+	.elseif eax == WM_SOCKET
+		invoke recv, _sock, addr my_game, SIZEOF GamePack, 0
+		.if eax != SOCKET_ERROR
+			lea ebx,my_game
+			invoke handleNewEvent, addr my_game
+		.endif
 
 	.else
 		invoke DefWindowProc, hWnd, uMsg, wParam, lParam
@@ -157,34 +164,24 @@ WinMain proc uses ebx
 	invoke UpdateWindow, hWinMain
 
 	invoke initClient,addr _sock
-
+	invoke WSAAsyncSelect, _sock, hWinMain, WM_SOCKET, FD_READ
 
 	;message loop
 	.while TRUE
-		invoke recv, _sock, addr my_game, SIZEOF GamePack, 0
-		.if eax != SOCKET_ERROR
-			lea ebx,my_game
-			invoke handleNewEvent, addr my_game
+		invoke GetMessage, addr @stMsg, NULL, 0, 0
+		.break .if eax == 0
+		invoke TranslateMessage, addr @stMsg
+		invoke DispatchMessage, addr @stMsg
+
+		.if operate == 2
+			mov eax,SOCKET_ERROR
+			.repeat 
+				;发送数据包
+				invoke send, _sock,  addr my_game, SIZEOF GamePack, 0
+			.until eax != SOCKET_ERROR
+			mov operate,0
+			invoke updateScene,hWinMain,addr my_game,addr operate,addr playerNo
 		.endif
-
-		.while is_operate
-			invoke GetMessage, addr @stMsg, NULL, 0, 0
-			.break .if eax == 0
-			invoke TranslateMessage, addr @stMsg
-			invoke DispatchMessage, addr @stMsg
-
-			.if operated == 1
-				mov eax,SOCKET_ERROR
-				.repeat 
-					;发送数据包
-					invoke send, _sock,  addr my_game, SIZEOF GamePack, 0
-				.until eax != SOCKET_ERROR
-				mov is_operate,0
-				mov operated,0
-				invoke updateScene,hWinMain,addr my_game,addr is_operate,addr playerNo
-				.break
-			.endif
-		.endw
 	.endw
 
 	ret

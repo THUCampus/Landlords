@@ -261,7 +261,6 @@ GameOver PROC,
 	mov al,'#'
 	call WriteChar
 
-
 	popad
 	ret
 GameOver ENDP

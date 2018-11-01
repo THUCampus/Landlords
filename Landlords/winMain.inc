@@ -22,36 +22,29 @@ includelib msimg32.lib
 handleNewEvent PROTO, _pack: PTR GamePack
 initScene PROTO  hWnd:DWORD
 drawMyCards PROTO  hwnd:DWORD,_pack: PTR GamePack,playerNo_addr:PTR BYTE
-updateScene PROTO hwnd:DWORD,_pack: PTR GamePack,is_operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
-click PROTO hWnd:DWORD, lParam:DWORD,stage:DWORD,_pack: PTR GamePack,operated_addr:PTR BYTE,playerNo_addr:PTR BYTE
+updateScene PROTO hwnd:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
+click PROTO hWnd:DWORD, lParam:DWORD,stage:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
 disMyCard PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 DisPlayer1Card PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 DisPlayer2Card PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 DrawPlayerCard PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
-ShowBtn PROTO number:DWORD,_pack: PTR GamePack,is_operate_addr:PTR BYTE ;number有什么用？
+ShowBtn PROTO number:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE ;number有什么用？
 ;=============
 
 
 WND_WIDTH EQU 860
 WND_HEIGHT EQU 540
 TOTAL_NUM EQU 54
-;
-NODISCARD EQU 0
-YESDISCARD EQU 1
-OVER EQU 0
-CONTINUE EQU 1
-DISCARDBTN EQU 0
-CALLBTN EQU 1
-HIDEBTN EQU 2
 WIN EQU 0
 LOSE EQU 1
+
 ; #########################################################################
 .data
 	;窗口句柄
 	hWinMain dd ?
 
-	is_operate BYTE 0
-	operated BYTE 0
+	;0的时候不能操作，1的时候可以操作且进行中，2的时候操作结束
+	operate BYTE 0
 
 	;内存DC
 	hdcScene dd ?;场景DC，其余DC先绘制到场景DC，再绘制到真正的DC，防止二次闪烁
@@ -97,20 +90,10 @@ LOSE EQU 1
 
 	;需要维护的数据
 	;我：
-	MyCards BYTE 0,1,1,1,0,0,1,1,0,1,44 dup(0);手牌
-	SelectedCards BYTE 0,1,0,0,0,0,0,1,0,0,44 dup(0);选择的牌
-	DisCards BYTE 0,1,0,0,0,0,0,0,0,0,44 dup(0);打出的牌
 	OrdOfMycards DWORD 54 dup(?);存放我的牌在MyCards中的下标，即牌面；不用维护
 	cardNum DWORD 0;手牌张数
 	startPos DWORD ?;手牌堆的起始位置，不用维护
 	endPos DWORD ?;手牌堆的结束位置，不用维护
-	;对手1:
-	Player1DisCards BYTE 1,1,1,1,1,1,1,1,0,1,44 dup(0);出牌
-	Player1AllCards BYTE 0,1,1,1,0,0,1,1,0,1,44 dup(0);手牌，只有游戏结束时才更新
-	;对手2的出牌
-	Player2DisCards BYTE 1,1,1,1,1,1,1,1,0,1,44 dup(0)
-	Player2AllCards BYTE 0,1,1,1,0,0,1,1,0,1,44 dup(0)
-
 
 	winMsg BYTE 'congratulations! you are the winner!',0
 	loseMsg BYTE 'sorry!you lose the game',0
