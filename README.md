@@ -2,9 +2,9 @@
 使用汇编语言编写的简单的斗地主小游戏。
 ***
 ## 使用方法
-1、在`WinMain.asm`文件中将`Main`设置为程序入口点，编译生成exe文件。<br>
+1、在`WinMain.asm`文件中将`Main`设置为程序入口点，设置子系统为**窗口**，编译生成exe文件。<br>
 2、在Debug目录下找到生成的exe文件，分别拷贝三份到另一个目录下（重命名为0.exe、1.exe、2.exe）<br>
-3、在`server.asm`文件中将`server_main`设置为程序入口点，编译生成exe文件。<br>
+3、在`server.asm`文件中将`server_main`设置为程序入口点，设置子系统为**控制台**，编译生成exe文件。<br>
 4、在Debug目录下找到生成的exe文件，拷贝到另一个目录下（命名为server.exe）<br>
 5、先启动server.exe，设置玩家数为**3**。<br>
 6、依次启动0.exe、1.exe、2.exe，现在默认ip地址为127.0.0.1，端口号为9999。<br>
