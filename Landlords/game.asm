@@ -53,7 +53,7 @@ GameStart PROC,
 	.endw
 
 	mov esi,gamePtr
-	mov (GamePack PTR [esi]).status,game_GetLandlord
+	mov (GamePack PTR [esi]).status,game_SendCard
 
 	popad
 	ret
@@ -98,6 +98,7 @@ SendCard PROC,
 		inc ecx
 	.endw
 
+	mov (GamePack PTR [esi]).status,game_GetLandlord
 	popad
 	ret
 SendCard ENDP

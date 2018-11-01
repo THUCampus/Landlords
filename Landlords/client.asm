@@ -11,10 +11,12 @@ include client.inc
 .code
 
 ;-----------------------------------------------------
-initClient PROC USES eax
+initClient PROC USES eax esi,_sock_addr:PTR DWORD
 ; 函数功能 : 初始化socket,连接到服务器的TCP端口。
 ; 返回值 : null
 ;-----------------------------------------------------
+
+	mov esi,_sock_addr
 	invoke WSAStartup, wsaVersion, addr wsaData
 	.if eax   ;the call is unsuccessful
 		invoke ExitProcess, 0
@@ -23,7 +25,7 @@ initClient PROC USES eax
 	;create socket
 	invoke socket, AF_INET, SOCK_STREAM, 0
 	.if eax != INVALID_SOCKET 
-		mov _sock, eax 
+		mov DWORD PTR [esi], eax 
 	.else 
 		invoke WSAGetLastError 
     .endif
@@ -33,8 +35,8 @@ initClient PROC USES eax
 
 	mov _sockAddr.sin_family, AF_INET
 
-	invoke crt_printf, addr ipInputStr
-	invoke crt_scanf, addr _printS, addr ipString
+	;invoke crt_printf, addr ipInputStr
+	;invoke crt_scanf, addr _printS, addr ipString
 
     invoke inet_addr, addr ipString    ;convert the ip address into network byte order
 	.if eax != INADDR_NONE
@@ -46,7 +48,7 @@ initClient PROC USES eax
 	mov _sockAddr.sin_port, ax
 
 	;connect server
-    invoke connect, _sock, addr _sockAddr, SIZEOF _sockAddr
+    invoke connect, DWORD PTR [esi], addr _sockAddr, SIZEOF _sockAddr
     .if eax == SOCKET_ERROR
         invoke WSAGetLastError
         invoke ExitProcess, NULL
@@ -191,7 +193,7 @@ parsePack ENDP
 
 client_main PROC
 
-    invoke initClient
+    ;invoke initClient
 
 	invoke handleMessage
 
@@ -200,4 +202,4 @@ client_main PROC
     invoke ExitProcess, NULL
 client_main ENDP
 
-END client_main
+END ;client_main

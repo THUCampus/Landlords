@@ -40,9 +40,10 @@
 
         ;游戏状态
 		game_NoStart = 0;未开始
-		game_GetLandlord= 1;叫地主阶段
-		game_SendLandlordCard = 2;发地主牌阶段
-		game_Discard = 3;出牌阶段
-		game_GameOver = 4;游戏结束	
+		game_SendCard = 1;发牌阶段
+		game_GetLandlord= 2;叫地主阶段
+		game_SendLandlordCard = 3;发地主牌阶段
+		game_Discard = 4;出牌阶段
+		game_GameOver = 5;游戏结束	
 
 ; #########################################################################

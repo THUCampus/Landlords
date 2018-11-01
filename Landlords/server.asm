@@ -76,14 +76,19 @@ listenSocket PROC
 	;开始游戏并发牌
 	invoke GameStart,addr my_game
 	invoke SendCard,addr my_game
+    mov ebx, 0
+	mov (GamePack PTR [esi]).now_player,0
+    .while bl < gameSock
+		invoke sendPack, connectedSockList[ebx * 4],  addr my_game	
+		inc bl
+	.endw
 	
     ;叫地主
     mov ebx, 0
 	mov (GamePack PTR [esi]).now_player,0
     .while bl < gameSock
 		invoke sendPack, connectedSockList[ebx * 4],  addr my_game	
-		invoke recvPack, connectedSockList[ebx * 4], addr my_game
-		
+		invoke recvPack, connectedSockList[ebx * 4], addr my_game	
 		inc bl
 		mov (GamePack PTR [esi]).now_player,bl
 	.endw

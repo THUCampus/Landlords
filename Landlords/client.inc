@@ -33,7 +33,7 @@ option casemap: none
     ; Local prototypes
     ;=================
 	;在此处添加函数
-    initClient PROTO
+    initClient PROTO,_sock_addr:PTR DWORD
     ExitProcess PROTO, dwExitCode:DWORD
 	parsePack PROTO, _pack: PTR GamePack
 	handleMessage PROTO
@@ -50,12 +50,13 @@ option casemap: none
 	_printS2 BYTE "%s", 0ah, 0dh, 0 ;for test, print some info
 	_printD DB "%d ",0
     _printC DB "%c", 0
-    ipString BYTE 16 DUP(0)
+    ipString BYTE "127.0.0.1",7 DUP(0)
 	chooseLandlord BYTE 0
 
 	.const
 	wsaVersion EQU 101h
 	TCP_PORT EQU 9999
+	WM_SOCKET equ WM_USER + 100
 
 	szErrIPStr BYTE "ip address wrong", 0ah, 0dh, 0
 	ipInputStr BYTE "Input server ip:",0ah, 0dh, 0
@@ -69,8 +70,8 @@ option casemap: none
 
 	.data?
 	_sock DWORD ?
-	hwnd DWORD ?
-	hWinMain DWORD ?
+	;hwnd DWORD ?
+	;hWinMain DWORD ?
 
     playerNo BYTE ?
 		
