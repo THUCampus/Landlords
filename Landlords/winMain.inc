@@ -20,6 +20,8 @@ includelib msimg32.lib
 ; Local prototypes
 ;=================
 handleNewEvent PROTO, _pack: PTR GamePack
+gameOver PROTO hwnd:HWND
+
 initScene PROTO  hWnd:DWORD
 drawMyCards PROTO  hwnd:DWORD,_pack: PTR GamePack,playerNo_addr:PTR BYTE
 updateScene PROTO hwnd:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE,playerNo_addr:PTR BYTE
@@ -35,8 +37,6 @@ ShowBtn PROTO number:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE ;number有�
 WND_WIDTH EQU 860
 WND_HEIGHT EQU 540
 TOTAL_NUM EQU 54
-WIN EQU 0
-LOSE EQU 1
 
 ; #########################################################################
 .data
@@ -95,7 +95,7 @@ LOSE EQU 1
 	startPos DWORD ?;手牌堆的起始位置，不用维护
 	endPos DWORD ?;手牌堆的结束位置，不用维护
 
-	winMsg BYTE 'congratulations! you are the winner!',0
-	loseMsg BYTE 'sorry!you lose the game',0
+	peasantWinStr BYTE 'Peasants win!',0
+	landLordWinStr BYTE 'Land lord win!',0
 	overMsg BYTE 'game over',0
 ; #########################################################################

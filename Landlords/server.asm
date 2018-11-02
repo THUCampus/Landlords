@@ -187,19 +187,23 @@ sendPack ENDP
 ;-----------------------------------------------------
 
 server_main PROC
-    invoke crt_printf, addr szInitSockNumStr, minSock, maxSock
-
-    .while TRUE
-        invoke crt_scanf, addr _printC, addr gameSock
-		sub gameSock, 48
-		mov bl, gameSock
-		.break .if bl >= minSock && bl <= maxSock
-	.endw
+    invoke crt_printf, addr szInitSockNumStr
 
     invoke initServer
 
 	.while 1
 		invoke listenSocket
+		;收到准备信号
+		pushad
+		mov ebx, 0
+		.while bl < gameSock
+			invoke recvPack, connectedSockList[ebx * 4],  addr my_game
+			inc bl
+		.endw
+		lea esi,my_game
+		mov al,game_NoStart
+		mov (GamePack PTR [esi]).status,al
+		popad
 	.endw
 
     invoke closesocket, hListenSock

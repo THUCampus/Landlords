@@ -45,6 +45,8 @@ handleNewEvent PROC,
 			mov operate,1
 		.endif
 		invoke updateScene,hWinMain,edi,addr operate,addr playerNo
+	.elseif cl == game_GameOver
+		invoke gameOver,hWinMain
 	.endif
 	popad
 	ret
@@ -56,32 +58,52 @@ gameInit proc uses edi, hwnd:HWND
 ;游戏初始化
  LOCAL @ps:PAINTSTRUCT
 ;---------------------------
-	;重置数据
+	pushad
 
 	;刷新画面
 	lea edi,my_game
 	invoke BeginPaint,hwnd,addr @ps
 	invoke updateScene,hwnd,edi,addr operate,addr playerNo
 	invoke EndPaint,hwnd,addr @ps
+	popad
 	ret
 gameInit endp
 ;================================================
 
 
 ;================================================
-gameOver proc hwnd:HWND,isWinner:BYTE;是否获胜
+gameOver proc hwnd:HWND
 ;游戏结束
 ;-----------------------------
-	.if isWinner == WIN
-		invoke MessageBox,hwnd,addr winMsg,addr overMsg,NULL
-	.else
-		invoke MessageBox,hwnd,addr loseMsg,addr overMsg,MB_OK
-	.endif
-	;invoke InvalidateRect,hwnd, NULL, FALSE
+	pushad
+	lea edi,my_game
+	lea esi,(GamePack PTR [edi]).all_players
+	mov eax,SIZEOF Player
+	mov ebx,3
+	mul ebx
+	add eax,esi
+	.while esi<eax
+		mov cl,(Player PTR [esi]).player_position
+		mov ch,(Player PTR [esi]).cards_num
+		.if ch == 0
+			.if cl==0
+				invoke MessageBox,hwnd,addr peasantWinStr,addr overMsg,MB_OK
+			.elseif cl==1
+				invoke MessageBox,hwnd,addr landLordWinStr,addr overMsg,MB_OK
+			.endif
+			.break
+		.endif
+		add esi,SIZEOF Player
+	.endw
+	push eax
+	invoke updateScene,hWinMain,edi,addr operate,addr playerNo
+	pop eax
 	.if eax == IDOK
 		invoke gameInit,hwnd
+		mov operate,2
 	.endif
-	;invoke InvalidateRect,hwnd, NULL, FALSE
+
+	popad
 	ret
 gameOver endp
 ;================================================
@@ -103,7 +125,7 @@ procWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		invoke click,hWnd,lParam,0,edi,addr operate,addr playerNo
 
 	.elseif eax == WM_RBUTTONDOWN
-		mov operate,0
+		;mov operate,0
 	;	invoke gameOver,hWnd,WIN
 
 	.elseif eax == WM_PAINT

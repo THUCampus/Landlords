@@ -720,7 +720,7 @@ LOCAL num2:DWORD
 	
 		lea edi,(Player PTR [esi]).cards
 		mov ecx,0
-		mov x,15
+		mov x,756
 		mov y,65
 		mov base,0
 
@@ -761,11 +761,11 @@ LOCAL num2:DWORD
 	
 		lea edi,(Player PTR [esi]).cards
 		mov ecx,0
-		mov x,756
+		mov x,15
 		mov y,65
 		mov base,0
 
-		.while
+		.while ecx<54
 			push ecx
 			mov eax,0
 			mov al,BYTE PTR [edi]
@@ -775,8 +775,9 @@ LOCAL num2:DWORD
 				add y,20
 			.ENDIF
 			pop ecx
+			inc ecx
 			add base,71
-			inc esi
+			inc edi
 		.endw
 
 		popad
