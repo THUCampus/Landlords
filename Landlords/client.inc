@@ -62,8 +62,6 @@ option casemap: none
 	cardsHaveStr BYTE "The cards you have now:",0ah,0dh,0
 	cardsChooseStr BYTE 0ah,0dh,"Please pick cards out('+num':add card/'-num':delete num/'#':end/'p':pass):",0ah,0dh,0
 	notYourTurnStr BYTE "Not your turn!",  0ah, 0dh, 0
-	landLordWinStr BYTE "Game Over!Land lord win!",0ah,0dh,0
-	peasantWinStr BYTE "Game Over!Peasants win!",0ah,0dh,0
 	
 
 	.data?

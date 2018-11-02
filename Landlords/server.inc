@@ -46,7 +46,7 @@ option casemap: none
 
     minSock BYTE 1
     maxSock BYTE 4
-    gameSock BYTE 0
+    gameSock BYTE 3
 
     _printC DB "%c", 0
 
@@ -56,7 +56,7 @@ option casemap: none
 
 	szErrBindStr BYTE "port 9999 cannot be bind, please check this port if it has been employed", 0
     szConnectStr BYTE "player %d connected, socket : %d", 0dh, 0ah, 0
-    szInitSockNumStr BYTE "Input the player numbers(%d - %d players are allowed):", 0dh, 0ah, 0
+    szInitSockNumStr BYTE "Game Start!", 0dh, 0ah, 0
 		
 	.data?
 	hListenSock DWORD ?
