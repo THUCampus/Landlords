@@ -21,7 +21,7 @@ INCLUDE Macros.inc
 	result BYTE ?
 	player1 Player <,3>
 
-	my_game Game  <>
+	my_game GamePack  <>
 
 .code
 
@@ -142,8 +142,11 @@ Main PROC
 	lea esi,(CardGroup PTR [edi]).cards
 	mDumpMem esi, LENGTHOF (CardGroup PTR [edi]).cards, TYPE (CardGroup PTR [edi]).cards
 
+	mov eax,type my_game
+	call WriteDec
+
 
 	ret
 Main ENDP
 
-END Main
+END

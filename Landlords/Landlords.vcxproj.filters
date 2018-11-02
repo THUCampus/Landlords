@@ -30,12 +30,18 @@
     <None Include="game.inc">
       <Filter>头文件</Filter>
     </None>
+    <None Include="client.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="server.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="winMain.inc">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="template.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="main.asm">
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="cardgroup.asm">
@@ -50,5 +56,53 @@
     <MASM Include="game.asm">
       <Filter>源文件</Filter>
     </MASM>
+    <MASM Include="client.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="server.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="scene.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="winMain.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\background.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\cardback.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\cards.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\discard.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\no.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\nodiscard.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\pass.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\score1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="landlord_gui.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
