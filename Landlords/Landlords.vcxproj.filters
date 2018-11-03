@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="template.inc">
-      <Filter>头文件</Filter>
-    </None>
     <None Include="cardgroup.inc">
       <Filter>头文件</Filter>
     </None>
@@ -41,9 +38,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="template.asm">
-      <Filter>源文件</Filter>
-    </MASM>
     <MASM Include="cardgroup.asm">
       <Filter>源文件</Filter>
     </MASM>

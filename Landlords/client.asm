@@ -11,7 +11,7 @@ include client.inc
 .code
 
 ;-----------------------------------------------------
-initClient PROC USES eax esi,_sock_addr:PTR DWORD
+initClient PROC USES eax esi,_sock_addr:PTR DWORD,ip_addr:PTR BYTE
 ; 函数功能 : 初始化socket,连接到服务器的TCP端口。
 ; 返回值 : null
 ;-----------------------------------------------------
@@ -35,10 +35,7 @@ initClient PROC USES eax esi,_sock_addr:PTR DWORD
 
 	mov _sockAddr.sin_family, AF_INET
 
-	;invoke crt_printf, addr ipInputStr
-	;invoke crt_scanf, addr _printS, addr ipString
-
-    invoke inet_addr, addr ipString    ;convert the ip address into network byte order
+    invoke inet_addr, ip_addr   ;convert the ip address into network byte order
 	.if eax != INADDR_NONE
 		mov _sockAddr.sin_addr, eax
 	.else
