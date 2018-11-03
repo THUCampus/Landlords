@@ -137,21 +137,19 @@
   <ItemGroup>
     <None Include="cardgroup.inc" />
     <None Include="cards.inc" />
-    <None Include="client.inc" />
     <None Include="game.inc" />
     <None Include="player.inc" />
     <None Include="server.inc" />
-    <None Include="winMain.inc" />
+    <None Include="client.inc" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="cardgroup.asm" />
     <MASM Include="cards.asm" />
-    <MASM Include="client.asm" />
     <MASM Include="game.asm" />
     <MASM Include="player.asm" />
     <MASM Include="scene.asm" />
     <MASM Include="server.asm" />
-    <MASM Include="winMain.asm" />
+    <MASM Include="client.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
