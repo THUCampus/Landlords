@@ -44,6 +44,8 @@ initScene proc uses eax ebx ecx esi edi, hWnd
 	mov hdcNoCallBtn, eax
 	invoke CreateCompatibleDC, @hDc
 	mov hdcCallBtn, eax
+	invoke CreateCompatibleDC, @hDc
+	mov hdcLDCard, eax
 
 	;load 位图DC或位图
 	invoke LoadBitmap, @hInstance, addr background
@@ -74,6 +76,8 @@ initScene proc uses eax ebx ecx esi edi, hWnd
 	mov hbmNoCallBtn, eax
 	invoke LoadBitmap, @hInstance, addr score1
 	mov hbmCallBtn, eax
+	invoke CreateCompatibleBitmap, @hDc,249,96
+	mov hbmLDCard,eax
 
 	;选择位图DC到内存DC中
 	invoke SelectObject,hdcScene,hbmScene
@@ -90,6 +94,8 @@ initScene proc uses eax ebx ecx esi edi, hWnd
 	invoke SelectObject,hdcDiscardBtn,hbmDiscardBtn
 	invoke SelectObject,hdcCallBtn,hbmCallBtn
 	invoke SelectObject,hdcNoCallBtn,hbmNoCallBtn
+	invoke SelectObject,hdcLDCard,hbmLDCard
+	invoke SelectObject,hdcLDCard,hbrush
 
   ;绘制背景到内存DC
 	invoke PatBlt,hdcBkg,0,0,860,540,PATCOPY
@@ -107,30 +113,28 @@ initScene endp
 ;=======================================================================
 ShowBtn proc uses eax ebx ecx edx esi edi,number,_pack: PTR GamePack,operate_addr:PTR BYTE
 ;显示出牌按钮
-;DISCARDBTN 出牌阶段按钮
-;CALLBTN 叫地主阶段按钮
-;HIDEBTN 隐藏按钮
 ;---------------------------------
+
+	invoke PatBlt,hdcBtn,0,0,200,50,PATCOPY
 	mov edi,operate_addr
 	mov al,BYTE PTR [edi]
 	.if al != 1;隐藏按钮
 		ret
 	.endif
 
-	invoke PatBlt,hdcBtn,0,0,200,50,PATCOPY
 	mov eax,82
 	mul number
 
 	mov edi, _pack
 	mov cl, (GamePack PTR [edi]).status
 
-	.IF cl == game_Discard
+	.if cl == game_Discard
 		invoke TransparentBlt,hdcBtn,10,5,82,40,hdcPassBtn,eax,0,82,40,00000000h
 		invoke TransparentBlt,hdcBtn,100,5,82,40,hdcDiscardBtn,eax,0,82,40,00000000h
-	.ELSEIF cl == game_GetLandlord
+	.elseif cl == game_GetLandlord
 		invoke TransparentBlt,hdcBtn,10,5,82,40,hdcNoCallBtn,eax,0,82,40,00000000h
 		invoke TransparentBlt,hdcBtn,100,5,82,40,hdcCallBtn,eax,0,82,40,00000000h
-	.ENDIF
+	.endif
 	ret
 ShowBtn endp
 ;=======================================================================
@@ -144,13 +148,16 @@ updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,operate_addr
 	mov @hDc,eax
 
 	invoke BitBlt,hdcScene,0,0,860,540,hdcBkg,0,0,SRCCOPY;背景
+	invoke ShowBtn,1,_pack,operate_addr;出牌按钮
 	invoke disMyCard,_pack,playerNo_addr;玩家打出的牌
 	invoke drawMyCards,hdcScene,_pack,playerNo_addr;玩家的手牌
 	invoke DisPlayer1Card,_pack,playerNo_addr;对手1打出的牌
 	invoke DisPlayer2Card,_pack,playerNo_addr;对手2打出的牌
 	invoke DrawPlayerCard,_pack,playerNo_addr;对手的手牌
-	invoke ShowBtn,1,_pack,operate_addr;出牌按钮
+	invoke drawLandLordCards,_pack;地主牌
+	invoke drawRole,_pack,playerNo_addr;玩家身份
 	invoke BitBlt,hdcScene,500,300,200,50,hdcBtn,0,0,SRCCOPY;
+	invoke BitBlt,hdcScene,306,20,249,96,hdcLDCard,0,0,SRCCOPY;
 	invoke BitBlt,@hDc, 0, 0, 860, 540, hdcScene, 0, 0, SRCCOPY
 
 	invoke ReleaseDC,hWnd,@hDc
@@ -158,7 +165,144 @@ updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,operate_addr
 updateScene endp
 ;=======================================================================
 
+;=======================================================================
+drawLandLordCards proc uses ecx ebx eax edx esi edi,_pack: PTR GamePack
+LOCAL x:DWORD
+;---------------------------------
+	invoke PatBlt,hdcLDCard,0,0,249,96,PATCOPY
+	mov edi, _pack
+	mov cl, (GamePack PTR [edi]).status
 
+	.if cl < game_GetLandlord
+		ret
+	.elseif cl ==game_GetLandlord;叫地主阶段
+		mov ecx,0
+		mov x,9
+		.while ecx<3
+			push ecx
+			invoke TransparentBlt, hdcLDCard, x, 0, 71, 96, hdcCardBack,\
+				0, 0, 71, 96, 00ff0000h
+			add x,80
+			pop ecx
+			inc ecx
+		.endw
+		ret
+	.else
+		mov x,9
+		mov ecx,0
+		mov edi, _pack
+		lea esi, (GamePack PTR [edi]).landlord_cards
+		.while ecx<3
+			mov eax,71
+			movzx ebx,BYTE PTR [esi]
+			mul ebx
+			push ecx
+			invoke TransparentBlt, hdcLDCard, x, 0, 71, 96, hdcCards,\
+				eax, 0, 71, 96, 00ff0000h
+			add x,80
+			pop ecx
+			inc ecx
+			inc esi
+		.endw
+		ret
+	.endif
+drawLandLordCards endp
+;=======================================================================
+
+;=======================================================================
+drawRole proc uses eax ebx ecx edx esi edi,_pack: PTR GamePack,playerNo_addr:PTR BYTE
+;roles三人角色：0为地主，1为农民
+;isShow:是否显示文字
+LOCAL @oldFont:HFONT
+LOCAL @oldColor:COLORREF
+;---------------------------------
+
+	mov edi, _pack
+	mov cl, (GamePack PTR [edi]).status
+
+	.if cl < game_SendLandlordCard
+		ret
+	.endif
+
+	invoke CreateFont, 20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, addr fontStyle
+	invoke SelectObject, hdcScene,eax
+	mov @oldFont,eax
+	invoke SetTextColor, hdcScene,00000000h
+	mov @oldColor,eax
+	invoke SetBkMode,hdcScene,TRANSPARENT
+
+	;player1
+	mov edi,_pack
+	lea esi,(GamePack PTR [edi]).all_players
+	mov eax,SIZEOF Player
+	mov ebx,0
+	push esi
+	mov esi,playerNo_addr
+	mov bl,BYTE PTR [esi]
+	pop esi
+	.if bl == 2
+		mov bl,0
+	.else
+		inc bl
+	.endif
+	mul ebx
+	add esi,eax
+	movzx eax,(Player PTR [esi]).player_position
+
+	.if eax==0
+		invoke TextOut,hdcScene,688,70,addr peasantChar,7
+	.else
+		invoke TextOut,hdcScene,688,70,addr landlordChar,8		
+	.endif	
+
+	;player2
+	mov edi,_pack
+	lea esi,(GamePack PTR [edi]).all_players
+	mov eax,SIZEOF Player
+	mov ebx,0
+	push esi
+	mov esi,playerNo_addr
+	mov bl,BYTE PTR [esi]
+	pop esi
+	.if bl == 0
+		mov bl,2
+	.else
+		dec bl
+	.endif
+	mul ebx
+	add esi,eax
+	movzx eax,(Player PTR [esi]).player_position
+
+	.if eax==0
+		invoke TextOut,hdcScene,105,70,addr peasantChar,7
+	.else
+		invoke TextOut,hdcScene,105,70,addr landlordChar,8
+	.endif
+
+	;player3
+	mov edi,_pack
+	lea esi,(GamePack PTR [edi]).all_players
+	mov eax,SIZEOF Player
+	mov ebx,0
+	push esi
+	mov esi,playerNo_addr
+	mov bl,BYTE PTR [esi]
+	pop esi
+	mul ebx
+	add esi,eax
+	movzx eax,(Player PTR [esi]).player_position
+
+	.if eax ==0
+		invoke TextOut,hdcScene,415,360,addr peasantChar,7
+	.else
+		invoke TextOut,hdcScene,415,360,addr landlordChar,8
+	.endif
+
+	invoke SetTextColor,hdcScene,@oldColor
+	invoke SelectObject,hdcScene,@oldFont
+	ret
+drawRole endp
+;=======================================================================
 
 ;=======================================================================
 drawMyCards proc uses eax ebx ecx esi edi,hDc,_pack: PTR GamePack,playerNo_addr:PTR BYTE
@@ -274,8 +418,8 @@ LOCAL @hDc:HDC
 
 	mov edi, _pack
 	mov cl, (GamePack PTR [edi]).status
-	.IF cl == game_Discard ;出牌阶段
-		.IF @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
+	.if cl == game_Discard ;出牌阶段
+		.if @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
 			mov ebx,operate_addr
 			mov BYTE PTR [ebx],2
 			mov cardNum,0
@@ -291,7 +435,7 @@ LOCAL @hDc:HDC
 			mul ebx
 			add esi,eax
 
-			.IF @ptMouse.POINT.x >=510 && @ptMouse.POINT.x <=592;点击"不出"
+			.if @ptMouse.POINT.x >=510 && @ptMouse.POINT.x <=592;点击"不出"
 				pushad
 				lea eax,(Player PTR [esi]).cards_to_show
 				lea edi,(CardGroup PTR [eax]).cards
@@ -316,30 +460,35 @@ LOCAL @hDc:HDC
 
 				popad
 			
-			.ENDIF
-			.IF @ptMouse.POINT.x >=600 && @ptMouse.POINT.x <=682;点击"出牌"
-				mov (Player PTR [esi]).to_pass,0
+			.endif
+			.if @ptMouse.POINT.x >=600 && @ptMouse.POINT.x <=682;点击"出牌"			
 				lea eax,(Player PTR [esi]).cards_to_show
 				mov edi,eax
-				lea ebx,(Player PTR [esi]).cards_showed
-				cardgroup_equal (CardGroup PTR [ebx]),(CardGroup PTR [eax])
-				invoke Clear,edi				;
-			.ENDIF
-		.ENDIF
+				mov dl,(CardGroup PTR [edi]).count
+				.if dl == 0
+					mov (Player PTR [esi]).to_pass,1
+				.else
+					mov (Player PTR [esi]).to_pass,0
+					lea ebx,(Player PTR [esi]).cards_showed
+					cardgroup_equal (CardGroup PTR [ebx]),(CardGroup PTR [eax])
+					invoke Clear,edi	
+				.endif						;
+			.endif
+		.endif
 
-		.IF @ptMouse.POINT.y >=380 && @ptMouse.POINT.y <= 500;点击手牌
+		.if @ptMouse.POINT.y >=380 && @ptMouse.POINT.y <= 500;点击手牌
 			mov ebx,startPos
 			mov eax,@ptMouse.POINT.x
 			sub eax,100
-			.IF eax > ebx && eax <= endPos
+			.if eax > ebx && eax <= endPos
 			;计算是选中的牌
 				sub eax,ebx
 				mov ebx,22
 				div ebx;
-				.IF eax >= cardNum
+				.if eax >= cardNum
 					mov eax,cardNum
 					dec eax
-				.ENDIF
+				.endif
 				mov ebx,4
 				mul ebx
 				mov ecx,OrdOfMycards[eax];
@@ -371,17 +520,17 @@ LOCAL @hDc:HDC
 				mov @hDc,eax
 				invoke drawMyCards,@hDc,_pack,playerNo_addr
 				invoke ReleaseDC,hWnd,@hDc
-			.ENDIF
-		.ENDIF
-	.ELSEIF cl == game_GetLandlord ;叫地主阶段
-		.IF @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
+			.endif
+		.endif
+	.elseif cl == game_GetLandlord ;叫地主阶段
+		.if @ptMouse.POINT.y >=305 && @ptMouse.POINT.y <=345;点击按钮
 			mov ebx,operate_addr
 			mov BYTE PTR [ebx],2
 			mov cardNum,0
-			.IF @ptMouse.POINT.x >=510 && @ptMouse.POINT.x <=592;点击"不叫"
+			.if @ptMouse.POINT.x >=510 && @ptMouse.POINT.x <=592;点击"不叫"
 				;
-			.ENDIF
-			.IF @ptMouse.POINT.x >=600 && @ptMouse.POINT.x <=682;点击"叫地主"
+			.endif
+			.if @ptMouse.POINT.x >=600 && @ptMouse.POINT.x <=682;点击"叫地主"
 				mov ebx,0
 				push esi
 				mov esi,playerNo_addr
@@ -392,9 +541,9 @@ LOCAL @hDc:HDC
 				mul ebx
 				add esi,eax
 				get_landlord (Player PTR [esi])
-			.ENDIF
-		.ENDIF
-	.ENDIF
+			.endif
+		.endif
+	.endif
 
 	ret
 click endp
@@ -423,11 +572,11 @@ LOCAL count:DWORD;出牌张数
 	mov eax,0
 	mov al,(Player PTR [esi]).to_pass
 	;如果不出牌
-	.IF al==1
+	.if al==1
 		invoke TransparentBlt, hdcScene, 392, 320, 63, 27, hdcNoDiscard,\
 			0, 0, 63, 27, 00ffffffh
 		ret
-	.ENDIF
+	.endif
 
 	;出牌
 	lea eax,(Player PTR [esi]).cards_showed
@@ -460,11 +609,11 @@ LOCAL count:DWORD;出牌张数
 		push ecx
 		mov ecx,0
 		mov cl,BYTE PTR [esi]
-		.IF cl==1;选择了这张牌 
+		.if cl==1;选择了这张牌 
 			invoke TransparentBlt, hdcScene, x, y, 71, 96, hdcCards,\
 				base, 0, 71, 96, 00ff0000h
 			add x,22
-		.ENDIF
+		.endif
 		pop ecx
 		inc ecx
 		inc esi
@@ -503,11 +652,11 @@ LOCAL count:DWORD
 	mov eax,0
 	mov al,(Player PTR [esi]).to_pass
 	;如果不出牌
-	.IF al==1
+	.if al==1
 		invoke TransparentBlt, hdcScene, 682, 200, 63, 27, hdcNoDiscard,\
 			0, 0, 63, 27, 00ffffffh
 		ret
-	.ENDIF
+	.endif
 
 	;出牌
 	lea eax,(Player PTR [esi]).cards_showed
@@ -535,11 +684,11 @@ LOCAL count:DWORD
 		push ecx
 		mov ecx,0
 		mov cl,BYTE PTR [esi]
-		.IF cl==1;选择了这张牌 
+		.if cl==1;选择了这张牌 
 			invoke TransparentBlt, hdcScene, x, y, 71, 96, hdcCards,\
 				base, 0, 71, 96, 00ff0000h
 			add x,22
-		.ENDIF
+		.endif
 		pop ecx
 		inc ecx
 		inc esi
@@ -576,11 +725,11 @@ LOCAL base:DWORD
 	mov eax,0
 	mov al,(Player PTR [esi]).to_pass
 	;如果不出牌
-	.IF al==1
+	.if al==1
 		invoke TransparentBlt, hdcScene, 105, 200, 63, 27, hdcNoDiscard,\
 			0, 0, 63, 27, 00ffffffh
 		ret
-	.ENDIF
+	.endif
 
 	;出牌
 	lea eax,(Player PTR [esi]).cards_showed
@@ -604,11 +753,11 @@ LOCAL base:DWORD
 		push ecx
 		mov ecx,0
 		mov cl,BYTE PTR [esi]
-		.IF cl==1;选择了这张牌 
+		.if cl==1;选择了这张牌 
 			invoke TransparentBlt, hdcScene, x, y, 71, 96, hdcCards,\
 				base, 0, 71, 96, 00ff0000h
 			add x,22
-		.ENDIF
+		.endif
 		pop ecx
 		inc ecx
 		inc esi
@@ -635,7 +784,7 @@ LOCAL num2:DWORD
 	mov edi, _pack
 	mov cl, (GamePack PTR [edi]).status
 
-	.IF cl!=game_GameOver;游戏未结束
+	.if cl!=game_GameOver;游戏未结束
 		;先绘制牌背面
 		invoke TransparentBlt, hdcScene, 760, 65, 71, 96, hdcCardBack,\
 			0,0,71,96, 00ff0000h
@@ -666,11 +815,11 @@ LOCAL num2:DWORD
 		movzx eax,(Player PTR [esi]).cards_num
 		mov num1,eax
 		invoke wsprintf, addr szText,addr szFmt,num1
-		.IF num1>9
+		.if num1>9
 			invoke TextOut,hdcScene,756,77,addr szText,2
 		.ELSE
 			invoke TextOut,hdcScene,756,77,addr szText,1
-		.ENDIF
+		.endif
 
 		;player2
 		lea esi,(GamePack PTR [edi]).all_players
@@ -690,11 +839,11 @@ LOCAL num2:DWORD
 		movzx eax,(Player PTR [esi]).cards_num
 		mov num2,eax
 		invoke wsprintf, addr szText,addr szFmt,num2
-		.IF num2>9
+		.if num2>9
 			invoke TextOut,hdcScene,15,77,addr szText,2
 		.ELSE
 			invoke TextOut,hdcScene,15,77,addr szText,1
-		.ENDIF
+		.endif
 		invoke SetTextColor,hdcScene,@oldColor
 		invoke SelectObject,hdcScene,@oldFont
 
@@ -728,11 +877,11 @@ LOCAL num2:DWORD
 			push ecx
 			mov eax,0
 			mov al,BYTE PTR [edi]
-			.IF al==1
+			.if al==1
 				invoke TransparentBlt, hdcScene, x, y, 71, 96, hdcCards,\
 					base, 0, 71, 96, 00ff0000h
 				add y,20
-			.ENDIF
+			.endif
 			pop ecx
 			inc ecx
 			add base,71
@@ -769,11 +918,11 @@ LOCAL num2:DWORD
 			push ecx
 			mov eax,0
 			mov al,BYTE PTR [edi]
-			.IF al==1
+			.if al==1
 				invoke TransparentBlt, hdcScene, x, y, 71, 96, hdcCards,\
 					base, 0, 71, 96, 00ff0000h
 				add y,20
-			.ENDIF
+			.endif
 			pop ecx
 			inc ecx
 			add base,71
@@ -782,7 +931,7 @@ LOCAL num2:DWORD
 
 		popad
 
-	.ENDIF
+	.endif
 
 	ret 
 DrawPlayerCard endp

@@ -33,7 +33,7 @@ option casemap: none
     ; Local prototypes
     ;=================
 	;在此处添加函数
-    initClient PROTO,_sock_addr:PTR DWORD
+    initClient PROTO,_sock_addr:PTR DWORD,ip_addr:PTR BYTE
     ExitProcess PROTO, dwExitCode:DWORD
 
 
@@ -48,7 +48,7 @@ option casemap: none
 	_printS2 BYTE "%s", 0ah, 0dh, 0 ;for test, print some info
 	_printD DB "%d ",0
     _printC DB "%c", 0
-    ipString BYTE "127.0.0.1",7 DUP(0)
+    ipString BYTE 20 DUP(0)
 	chooseLandlord BYTE 0
 
 	.const

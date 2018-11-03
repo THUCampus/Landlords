@@ -31,6 +31,8 @@ DisPlayer1Card PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 DisPlayer2Card PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 DrawPlayerCard PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 ShowBtn PROTO number:DWORD,_pack: PTR GamePack,operate_addr:PTR BYTE ;number有什么用？
+drawLandLordCards PROTO _pack: PTR GamePack
+drawRole PROTO _pack: PTR GamePack,playerNo_addr:PTR BYTE
 ;=============
 
 
@@ -42,7 +44,7 @@ TOTAL_NUM EQU 54
 .data
 	;窗口句柄
 	hWinMain dd ?
-
+	hEdit dd ?
 	;0的时候不能操作，1的时候可以操作且进行中，2的时候操作结束
 	operate BYTE 0
 
@@ -58,6 +60,7 @@ TOTAL_NUM EQU 54
 	hdcPassBtn dd ?
 	hdcNoCallBtn dd ?
 	hdcCallBtn dd ?
+	hdcLDCard dd ?
 
 	;位图DC
 	hbmScene dd ?;
@@ -71,6 +74,8 @@ TOTAL_NUM EQU 54
 	hbmPassBtn dd ?
 	hbmNoCallBtn dd ?
 	hbmCallBtn dd ?
+	hbmLDCard dd ?
+
 	;字体画刷等
 	hbrush dd ?;背景画刷
 	fontStyle db "Arial",0
@@ -98,4 +103,8 @@ TOTAL_NUM EQU 54
 	peasantWinStr BYTE 'Peasants win!',0
 	landLordWinStr BYTE 'Land lord win!',0
 	overMsg BYTE 'game over',0
+	landlordChar BYTE 'landlord',0
+	peasantChar BYTE 'peasant',0
+	editName BYTE 'edit',0
+	editCaption BYTE 'Please enter ip address',0
 ; #########################################################################

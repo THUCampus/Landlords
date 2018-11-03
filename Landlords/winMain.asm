@@ -120,6 +120,7 @@ procWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 	mov eax, uMsg
 	.if eax == WM_CREATE
 		invoke initScene, hWnd
+
 	.elseif eax == WM_LBUTTONDOWN
 		lea edi,my_game
 		invoke click,hWnd,lParam,0,edi,addr operate,addr playerNo
@@ -141,6 +142,9 @@ procWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			invoke handleNewEvent, addr my_game
 		.endif
 
+	.elseif eax == WM_CLOSE
+		invoke  DestroyWindow,hWnd
+		invoke  PostQuitMessage,NULL
 	.else
 		invoke DefWindowProc, hWnd, uMsg, wParam, lParam
 		ret
@@ -152,6 +156,34 @@ procWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 procWinMain endp
 ;================================================
 
+;================================================
+procdlg proc uses eax ebx, hWnd, uMsg, wParam, lParam
+;窗口事件处理函数
+	LOCAL @hInstance:HINSTANCE
+;-----------------------------
+	mov eax, uMsg
+	.if eax == WM_CREATE
+		invoke GetModuleHandle, 0
+		mov @hInstance, eax
+	.elseif eax==WM_COMMAND
+		mov ebx,wParam
+		and ebx,0000ffffh
+		.if ebx == IDOK
+			invoke GetDlgItemText,hWnd,1001,addr ipString,20
+			invoke DestroyWindow,hWnd
+		.endif
+	.elseif eax==WM_DESTROY
+		invoke DestroyWindow,hWnd
+	.else
+		invoke DefWindowProc, hWnd, uMsg, wParam, lParam
+		ret
+		
+	.endif
+	
+	xor eax, eax
+	ret
+procdlg endp
+;================================================
 
 ;================================================
 WinMain proc uses ebx
@@ -182,10 +214,12 @@ WinMain proc uses ebx
 		NULL, NULL, @hInstance, NULL
 	mov hWinMain, eax
 
+	invoke DialogBoxParam, @hInstance, 109, NULL,procdlg,NULL;先显示消息框
+
 	invoke ShowWindow, hWinMain, SW_SHOWNORMAL
 	invoke UpdateWindow, hWinMain
 
-	invoke initClient,addr _sock
+	invoke initClient,addr _sock,addr ipString
 	invoke WSAAsyncSelect, _sock, hWinMain, WM_SOCKET, FD_READ
 
 	;message loop

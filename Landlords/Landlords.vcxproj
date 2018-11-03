@@ -141,7 +141,6 @@
     <None Include="game.inc" />
     <None Include="player.inc" />
     <None Include="server.inc" />
-    <None Include="template.inc" />
     <None Include="winMain.inc" />
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +151,6 @@
     <MASM Include="player.asm" />
     <MASM Include="scene.asm" />
     <MASM Include="server.asm" />
-    <MASM Include="template.asm" />
     <MASM Include="winMain.asm" />
   </ItemGroup>
   <ItemGroup>
