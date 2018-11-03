@@ -1,3 +1,11 @@
+; #########################################################################
+; 文件：
+;	scene.asm
+;
+; 功能：
+;	实现玩家界面的绘制与操作相应
+;
+; #########################################################################
 TITLE SCENE (scene.asm)
 
 .386
@@ -5,7 +13,7 @@ TITLE SCENE (scene.asm)
 option casemap:none
 
 
-INCLUDE winMain.inc
+INCLUDE client.inc
 
 .code 
 

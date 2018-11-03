@@ -27,13 +27,10 @@
     <None Include="game.inc">
       <Filter>头文件</Filter>
     </None>
-    <None Include="client.inc">
-      <Filter>头文件</Filter>
-    </None>
     <None Include="server.inc">
       <Filter>头文件</Filter>
     </None>
-    <None Include="winMain.inc">
+    <None Include="client.inc">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>
@@ -50,16 +47,13 @@
     <MASM Include="game.asm">
       <Filter>源文件</Filter>
     </MASM>
-    <MASM Include="client.asm">
-      <Filter>源文件</Filter>
-    </MASM>
     <MASM Include="server.asm">
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="scene.asm">
       <Filter>源文件</Filter>
     </MASM>
-    <MASM Include="winMain.asm">
+    <MASM Include="client.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>
