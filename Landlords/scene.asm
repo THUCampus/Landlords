@@ -149,7 +149,6 @@ updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,operate_addr
 
 	invoke BitBlt,hdcScene,0,0,860,540,hdcBkg,0,0,SRCCOPY;背景
 	invoke ShowBtn,1,_pack,operate_addr;出牌按钮
-	invoke disMyCard,_pack,playerNo_addr;玩家打出的牌
 	invoke drawMyCards,hdcScene,_pack,playerNo_addr;玩家的手牌
 	invoke DisPlayer1Card,_pack,playerNo_addr;对手1打出的牌
 	invoke DisPlayer2Card,_pack,playerNo_addr;对手2打出的牌
@@ -158,6 +157,7 @@ updateScene proc uses eax ebx ecx esi edi, hWnd,_pack: PTR GamePack,operate_addr
 	invoke drawRole,_pack,playerNo_addr;玩家身份
 	invoke BitBlt,hdcScene,500,300,200,50,hdcBtn,0,0,SRCCOPY;
 	invoke BitBlt,hdcScene,306,20,249,96,hdcLDCard,0,0,SRCCOPY;
+	invoke disMyCard,_pack,playerNo_addr;玩家打出的牌
 	invoke BitBlt,@hDc, 0, 0, 860, 540, hdcScene, 0, 0, SRCCOPY
 
 	invoke ReleaseDC,hWnd,@hDc
