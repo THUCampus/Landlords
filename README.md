@@ -59,12 +59,10 @@
 ![图片](https://images-cdn.shimo.im/AYpKfD0uPMU9JECV/无标题.png!thumbnail)
 ### 客户端
 1、ip地址输入框<br>
-![图片](https://images-cdn.shimo.im/6eDmhA0Is6c5ye6s/无标题.png!thumbnail)<br>
+![图片](https://images-cdn.shimo.im/6eDmhA0Is6c5ye6s/无标题.png)<br>
 2、叫地主界面<br>
-![图片](https://images-cdn.shimo.im/45Hfe4SmgRodCXEa/无标题.png!thumbnail)<br>
+![图片](https://images-cdn.shimo.im/45Hfe4SmgRodCXEa/无标题.png)<br>
 3、游戏界面<br>
-![图片](https://images-cdn.shimo.im/vXirYaHPmaExxXvd/无标题.png!thumbnail)<br>
-4、结束界面<br>
-![图片](https://images-cdn.shimo.im/Myd8xJX1hx4P1ZLF/无标题.png!thumbnail)<br>
-
-
+![图片](https://images-cdn.shimo.im/vXirYaHPmaExxXvd/无标题.png)<br>
+4、结束界面
+![图片](https://images-cdn.shimo.im/Myd8xJX1hx4P1ZLF/无标题.png)<br>
